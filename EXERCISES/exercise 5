@@ -1,1 +1,135 @@
+/*
+ * Course: CMP 269 - Spring 2026
+ * Exercise 5: Multithreading in Java
+*/
 
+
+// Exercise 1: "Greeting" Threads (Runnable Interface)
+
+public class GreeterTask implements Runnable {
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 5; i++) {
+            String currentName = Thread.currentThread().getName();
+            System.out.println("Hello from " + currentName + " (message " + (i + 1) + ")");
+            try {
+                Thread.sleep(500); // pause 500 ms between greetings
+            } catch (InterruptedException e) {
+                System.out.println(currentName + " was interrupted.");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        // Create two named threads — output will interleave
+        Thread t1 = new Thread(new GreeterTask(), "Lehman-Thread-1");
+        Thread t2 = new Thread(new GreeterTask(), "Lehman-Thread-2");
+        t1.start();
+        t2.start();
+    }
+}
+
+
+// Exercise 2: Visualizing Thread States
+
+public class ThreadStates {
+
+    public static void main(String[] args) throws InterruptedException {
+
+        // Create a thread that sleeps for 2 seconds (not started yet)
+        Thread sleeperThread = new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Should be NEW
+        System.out.println("[1] After creation  -> State: " + sleeperThread.getState());
+
+        sleeperThread.start();
+
+        // Should be RUNNABLE
+        System.out.println("[2] After start()   -> State: " + sleeperThread.getState());
+
+        // Wait briefly so the thread is sleeping
+        Thread.sleep(500);
+
+        // Should be TIMED_WAITING
+        System.out.println("[3] While sleeping  -> State: " + sleeperThread.getState());
+
+        sleeperThread.join(); // wait until finished
+
+        // Should be TERMINATED
+        System.out.println("[4] After finish    -> State: " + sleeperThread.getState());
+    }
+}
+
+
+
+// Exercise 3: Bank Account Race Condition
+
+public class BankAccount {
+
+    private int balance = 1000; // initial balance
+
+    /*
+     * Without synchronized, both threads may pass the balance
+     * check simultaneously before subtraction occurs — causing
+     * a negative balance. The synchronized keyword ensures
+     * only one thread enters this method at a time.
+     */
+    public synchronized void withdraw(int amount) {
+        String user = Thread.currentThread().getName();
+
+        if (balance >= amount) {
+            System.out.println(user + " approved  — withdrawing $" + amount);
+            balance -= amount;
+            System.out.println(user + " finished  — remaining balance: $" + balance);
+        } else {
+            System.out.println(user + " denied    — insufficient funds. Balance: $" + balance);
+        }
+    }
+
+    public static void main(String[] args) {
+        BankAccount account = new BankAccount();
+
+        // Both attempt to withdraw $700 simultaneously
+        Thread husband = new Thread(() -> account.withdraw(700), "Husband");
+        Thread wife = new Thread(() -> account.withdraw(700), "Wife");
+
+        husband.start();
+        wife.start();
+    }
+}
+
+
+
+// Exercise 4: Coordination with join()
+
+public class HeavyCalculation {
+
+    static long total = 0; // shared result
+
+    public static void main(String[] args) throws InterruptedException {
+
+        // Worker thread counts up to 1 billion
+        Thread workerThread = new Thread(() -> {
+            System.out.println("[Worker] Starting heavy calculation...");
+            for (long i = 0; i < 1_000_000_000L; i++) {
+                total++;
+            }
+            System.out.println("[Worker] Calculation complete.");
+        });
+
+        workerThread.start();
+
+        // join() blocks main until worker completes
+        workerThread.join();
+
+        System.out.println("Calculation finished: " + total);
+    }
+}
