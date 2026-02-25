@@ -1,1 +1,60 @@
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 
+public class RegistrationApp extends Application {
+
+    @Override
+    public void start(Stage stage) {
+        GridPane pane = new GridPane();
+        pane.setPadding(new Insets(18));
+        pane.setVgap(12);
+        pane.setHgap(12);
+
+        Label nameLabel = new Label("Student Name:");
+        TextField nameField = new TextField();
+        nameField.setPromptText("Enter name");
+        pane.add(nameLabel, 0, 0);
+        pane.add(nameField, 1, 0);
+
+        Label courseLabel = new Label("Course Code:");
+        ComboBox<String> courseBox = new ComboBox<>();
+        courseBox.getItems().addAll("CMP 269", "CMP 168", "CMP 167", "CIS 166");
+        pane.add(courseLabel, 0, 1);
+        pane.add(courseBox, 1, 1);
+
+        Button registerButton = new Button("Register");
+        pane.add(registerButton, 1, 2);
+
+        Label statusLabel = new Label();
+        pane.add(statusLabel, 0, 3, 2, 1);
+
+        registerButton.setOnAction(e -> {
+            String studentName = nameField.getText().trim();
+            String selectedCourse = courseBox.getValue();
+
+            if (studentName.isEmpty() || selectedCourse == null || selectedCourse.trim().isEmpty()) {
+                statusLabel.setText("Enter your name and choose a course.");
+                return;
+            }
+
+            statusLabel.setText("Registration successful for " 
+                    + studentName + " in " + selectedCourse + "!");
+        });
+
+        Scene scene = new Scene(pane, 400, 250);
+        stage.setTitle("Lehman Course Registration");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
