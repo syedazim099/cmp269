@@ -1,1 +1,150 @@
+import java.util.ArrayList;
 
+// Interfaces
+interface Powerable {
+    void turnOn();
+    void turnOff();
+}
+
+interface Adjustable {
+    void setLevel(int level);
+}
+
+// Abstract class
+abstract class SmartDevice implements Powerable {
+    protected String name;      // simpler variable name
+    protected boolean on;       // shorter variable name
+
+    protected static int activeCount = 0;  // simpler name
+
+    public SmartDevice(String name) {
+        this.name = name;
+        this.on = false;
+    }
+
+    public static int getActiveCount() {
+        return activeCount;
+    }
+
+    public abstract void runCheck();   // renamed method
+}
+
+// SmartLight class
+class SmartLight extends SmartDevice implements Adjustable {
+    private int brightness;
+
+    public SmartLight(String name) {
+        super(name);
+        brightness = 0;
+    }
+
+    @Override
+    public void turnOn() {
+        if (!on) {
+            on = true;
+            activeCount++;
+            System.out.println(name + " is now ON");
+        }
+    }
+
+    @Override
+    public void turnOff() {
+        if (on) {
+            on = false;
+            activeCount--;
+            System.out.println(name + " is now OFF");
+        }
+    }
+
+    @Override
+    public void setLevel(int level) {
+        if (!on) {
+            System.out.println("Device is off, can't change brightness.");
+            return;
+        }
+
+        if (level < 0) level = 0;
+        if (level > 100) level = 100;
+
+        brightness = level;
+        System.out.println(name + " brightness set to " + brightness);
+    }
+
+    @Override
+    public void runCheck() {
+        System.out.println(name + " checking light status...");
+    }
+}
+
+// SmartThermostat class
+class SmartThermostat extends SmartDevice implements Adjustable {
+    private int temp;
+
+    public SmartThermostat(String name) {
+        super(name);
+        temp = 70;
+    }
+
+    @Override
+    public void turnOn() {
+        if (!on) {
+            System.out.println("Thermostat turning on...");
+            on = true;
+            activeCount++;
+        }
+    }
+
+    @Override
+    public void turnOff() {
+        if (on) {
+            on = false;
+            activeCount--;
+        }
+    }
+
+    @Override
+    public void setLevel(int level) {
+        if (!on) {
+            System.out.println("Device is off, can't change temperature.");
+            return;
+        }
+
+        if (level < 60) level = 60;
+        if (level > 80) level = 80;
+
+        temp = level;
+        System.out.println(name + " temperature set to " + temp);
+    }
+
+    @Override
+    public void runCheck() {
+        System.out.println(name + " running system check...");
+    }
+}
+
+// Main class
+public class LehmanSmartHome {
+    public static void main(String[] args) {
+
+        ArrayList<SmartDevice> devices = new ArrayList<>();
+
+        SmartLight light1 = new SmartLight("Living Room Light");
+        SmartLight light2 = new SmartLight("Kitchen Light");
+        SmartThermostat thermo1 = new SmartThermostat("Hallway Thermostat");
+
+        devices.add(light1);
+        devices.add(light2);
+        devices.add(thermo1);
+
+        light1.turnOn();
+        thermo1.turnOn();
+
+        light2.setLevel(75);  // should print warning since it's off
+
+        System.out.println("Devices currently on: " + SmartDevice.getActiveCount());
+
+        for (SmartDevice d : devices) {
+            d.runCheck();
+        }
+    }
+}
