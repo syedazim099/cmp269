@@ -1,1 +1,120 @@
+import java.util.ArrayList;
 
+// Payable interface
+interface Payable {
+    void processPayment(double amount);
+    String getPaymentStatus();
+}
+
+// Abstract class
+abstract class PaymentMethod implements Payable {
+    protected String name;          // changed variable name
+    protected double balance;
+
+    protected static int total = 0;  // simpler variable name
+
+    public PaymentMethod(String name, double balance) {
+        this.name = name;
+        this.balance = balance;
+    }
+
+    public static int getTotal() {   // simpler method name
+        return total;
+    }
+
+    public abstract void validateAccount();
+}
+
+// CreditCard class
+class CreditCard extends PaymentMethod {
+    private double limit;
+    private String status = "Not done";   // more casual
+
+    public CreditCard(String name, double balance, double limit) {
+        super(name, balance);
+        this.limit = limit;
+    }
+
+    @Override
+    public void validateAccount() {
+        // simple validation
+        if (balance < 0) {
+            System.out.println("Balance is below 0.");
+        }
+    }
+
+    @Override
+    public void processPayment(double amount) {
+        validateAccount();
+
+        if (amount > balance + limit) {
+            System.out.println("Not enough funds.");
+            status = "Failed";
+        } else {
+            balance -= amount;
+            total++;
+            status = "Success";
+        }
+    }
+
+    @Override
+    public String getPaymentStatus() {
+        return status;
+    }
+}
+
+// MealPlan class
+class MealPlan extends PaymentMethod {
+    private String status = "Not done";
+
+    public MealPlan(String name, double balance) {
+        super(name, balance);
+    }
+
+    @Override
+    public void validateAccount() {
+        if (balance < 0) {
+            System.out.println("Meal balance is negative.");
+        }
+    }
+
+    @Override
+    public void processPayment(double amount) {
+        validateAccount();
+
+        if (amount > balance) {
+            System.out.println("Not enough meal balance.");
+            status = "Failed";
+        } else {
+            balance -= amount;
+            total++;
+            status = "Success";
+        }
+    }
+
+    @Override
+    public String getPaymentStatus() {
+        return status;
+    }
+}
+
+// Main class
+public class LehmanCampusPaymentSystem {
+    public static void main(String[] args) {
+
+        ArrayList<Payable> list = new ArrayList<>();
+
+        Payable card1 = new CreditCard("Alice", 100, 200);
+        Payable meal1 = new MealPlan("Bob", 60);
+
+        list.add(card1);
+        list.add(meal1);
+
+        for (Payable p : list) {
+            p.processPayment(50);
+            System.out.println("Payment result: " + p.getPaymentStatus());
+        }
+
+        System.out.println("Total payments made: " + PaymentMethod.getTotal());
+    }
+}
