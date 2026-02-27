@@ -1,1 +1,97 @@
+// ===== Test class: AppTest.java =====
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class AppTest {
+
+    @Test
+    @DisplayName("Grade 70 should be considered passing")
+    void passingGradeTest() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertTrue(gradeBook.isPassing(70), "Grade 70 should return true.");
+    }
+
+    @Test
+    @DisplayName("Score 95 should return letter A")
+    void letterGradeHighATest() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertEquals('A', gradeBook.getLetterGrade(95));
+    }
+
+    @Test
+    @DisplayName("Score 50 should return letter F")
+    void letterGradeLowFTest() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertEquals('F', gradeBook.getLetterGrade(50));
+    }
+
+    @Test
+    @DisplayName("Boundary test: 90 is minimum for A")
+    void boundaryTestA() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertEquals('A', gradeBook.getLetterGrade(90));
+    }
+
+    @Test
+    @DisplayName("Boundary test: 80 is minimum for B")
+    void boundaryTestB() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertEquals('B', gradeBook.getLetterGrade(80));
+    }
+
+    @Test
+    @DisplayName("Boundary test: 70 is minimum for C")
+    void boundaryTestC() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertEquals('C', gradeBook.getLetterGrade(70));
+    }
+
+    @Test
+    @DisplayName("Grades outside 0-100 should throw exception")
+    void invalidGradeExceptionTest() {
+        LehmanGradeBook gradeBook = new LehmanGradeBook();
+        assertThrows(IllegalArgumentException.class, 
+                () -> gradeBook.isPassing(150));
+    }
+}
+
+
+
+// ===== Main class: LehmanGradeBook.java =====
+
+public class LehmanGradeBook {
+
+    public boolean isPassing(int grade) {
+        validateRange(grade);
+        return grade >= 70;
+    }
+
+    public char getLetterGrade(int score) {
+        validateRange(score);
+
+        if (score >= 90) {
+            return 'A';
+        } 
+        else if (score >= 80) {
+            return 'B';
+        } 
+        else if (score >= 70) {
+            return 'C';
+        } 
+        else if (score >= 60) {
+            return 'D';
+        } 
+        else {
+            return 'F';
+        }
+    }
+
+    private void validateRange(int number) {
+        if (number < 0 || number > 100) {
+            throw new IllegalArgumentException("Grade must be in the range 0 to 100.");
+        }
+    }
+}
